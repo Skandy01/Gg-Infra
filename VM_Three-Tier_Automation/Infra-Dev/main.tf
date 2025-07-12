@@ -4,6 +4,13 @@ module "conflict-rg" {
   resource_group_location = "Central India"
 }
 
+module "resource_group" {
+
+    source = "../Modules/Resource_Group"
+    resource_group_name     = "conflict-two"
+    resource_group_location = "West India"
+}
+
 
 module "resource_group" {
 

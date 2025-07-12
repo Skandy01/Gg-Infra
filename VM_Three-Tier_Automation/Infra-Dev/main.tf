@@ -5,6 +5,14 @@ module "resource_group" {
     resource_group_location = "South India"
 }
 
+module "resource_group" {
+
+    source = "../Modules/Resource_Group"
+    resource_group_name = "testing-rg"
+    resource_group_location = "South India"
+}
+
+
 module "public_ip" {
 
     depends_on = [ module.resource_group]

@@ -1,0 +1,26 @@
+# Ignore user and OS junk
+*.log
+*.tmp
+*.DS_Store
+*.swp
+*.swo
+*.bak
+
+# Windows user directories
+/3D Objects/
+/AppData/
+/Contacts/
+/Documents/
+/Downloads/
+/Favorites/
+/Links/
+/Music/
+/Pictures/
+/Videos/
+/Saved Games/
+/Searches/
+/Tracing/
+
+# Hidden folders except .gitignore
+.*
+!.gitignore

@@ -5,18 +5,6 @@ module "resource_group" {
     resource_group_location = "South India"
 }
 
-module "resource_group" {
-
-    source = "../Modules/Resource_Group"
-    resource_group_name = "testing-rg"
-    resource_group_location = "South India"
-}
-
-module "resource_group" {
-  source = "../Modules/Resource_Group"
-  resource_group_name     = "conflict-rg"
-  resource_group_location = "West India"
-}
 
 module "public_ip" {
 

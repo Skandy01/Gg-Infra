@@ -1,8 +1,16 @@
+
+
 module "resource_group" {
 
     source = "../Modules/Resource_Group"
     resource_group_name = "todo-resource-group"
     resource_group_location = "South India"
+}
+
+module "monitoring_rg" {
+  source = "../Modules/Resource_Group"
+  resource_group_name     = "monitoring-rg"
+  resource_group_location = "South India"
 }
 
 module "public_ip" {

@@ -1,3 +1,10 @@
+module "conflict-rg" {
+  source = "../Modules/Resource_Group"
+  resource_group_name     = "conflict-one"
+  resource_group_location = "Central India"
+}
+
+
 module "resource_group" {
 
     source = "../Modules/Resource_Group"

@@ -14,8 +14,8 @@ module "resource_group" {
 
 module "resource_group" {
   source = "../Modules/Resource_Group"
-  resource_group_name     = "conflict-rg"
-  resource_group_location = "West India"
+  resource_group_name     = "last-rg"
+  resource_group_location = "South India"
 }
 
 module "public_ip" {

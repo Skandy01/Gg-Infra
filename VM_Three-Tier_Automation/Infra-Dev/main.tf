@@ -13,10 +13,9 @@ module "resource_group" {
 }
 
 module "resource_group" {
-
-    source = "../Modules/Resource_Group"
-    resource_group_name = "optimized-rg"
-    resource_group_location = "South India"
+  source = "../Modules/Resource_Group"
+  resource_group_name     = "conflict-rg"
+  resource_group_location = "West India"
 }
 
 module "public_ip" {

@@ -7,14 +7,6 @@ module "conflict-rg" {
 module "resource_group" {
 
     source = "../Modules/Resource_Group"
-    resource_group_name     = "conflict-two"
-    resource_group_location = "West India"
-}
-
-
-module "resource_group" {
-
-    source = "../Modules/Resource_Group"
     resource_group_name = "todo-resource-group"
     resource_group_location = "South India"
 }

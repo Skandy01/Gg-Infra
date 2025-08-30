@@ -1,6 +1,6 @@
 trigger: none
 
-pool: Initial Pool
+pool: Azure Pipelines
 
 steps:
 - task: TerraformInstaller@1

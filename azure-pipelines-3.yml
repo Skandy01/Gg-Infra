@@ -11,6 +11,7 @@ jobs:
   displayName: 'Terraform Installer'
   steps:
   - task: TerraformInstaller@1
+    displayName: 'Terraform Installer'
     inputs:
       terraformVersion: 'latest'
 
@@ -18,6 +19,7 @@ jobs:
   displayName: 'Terraform Init'
   steps:
   - task: TerraformTask@5
+    displayName: 'Terraform Init'
     inputs:
       provider: 'azurerm'
       command: 'init'
@@ -32,11 +34,13 @@ jobs:
   displayName: 'Terraform Validate & Fmt'
   steps:
   - task: TerraformTask@5
+    displayName: 'Terraform Validate'
     inputs:
       provider: 'azurerm'
       command: 'validate'
       workingDirectory: '$(workDir)'
   - task: TerraformTask@5
+    displayName: 'Terraform Fmt'
     inputs:
       provider: 'azurerm'
       command: 'custom'
@@ -49,6 +53,7 @@ jobs:
   displayName: 'Terraform Plan'
   steps:
   - task: TerraformTask@5
+    displayName: 'Terraform Plan'
     inputs:
       provider: 'azurerm'
       command: 'plan'

@@ -71,6 +71,10 @@ jobs:
 - job: 
   displayName: 'Terraform Plan'
   steps:
+  - task: TerraformInstaller@1
+    displayName: 'Terraform Installer'
+    inputs:
+      terraformVersion: 'latest'
   - task: TerraformTask@5
     displayName: 'Terraform Init'
     inputs:
@@ -82,10 +86,6 @@ jobs:
       backendAzureRmStorageAccountName: 'stgsp'
       backendAzureRmContainerName: 'contsp'
       backendAzureRmKey: 'Dev01.tfstate'
-  - task: TerraformInstaller@1
-    displayName: 'Terraform Installer'
-    inputs:
-      terraformVersion: 'latest'
   - task: TerraformTask@5
     displayName: 'Terraform Plan'
     inputs:

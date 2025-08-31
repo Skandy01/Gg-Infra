@@ -18,6 +18,10 @@ jobs:
 - job: 
   displayName: 'Terraform Init'
   steps:
+  - task: TerraformInstaller@1
+    displayName: 'Terraform Installer'
+    inputs:
+      terraformVersion: 'latest'
   - task: TerraformTask@5
     displayName: 'Terraform Init'
     inputs:
@@ -33,6 +37,10 @@ jobs:
 - job: 
   displayName: 'Terraform Validate & Fmt'
   steps:
+  - task: TerraformInstaller@1
+    displayName: 'Terraform Installer'
+    inputs:
+      terraformVersion: 'latest'
   - task: TerraformTask@5
     displayName: 'Terraform Validate'
     inputs:
@@ -52,6 +60,10 @@ jobs:
 - job: 
   displayName: 'Terraform Plan'
   steps:
+  - task: TerraformInstaller@1
+    displayName: 'Terraform Installer'
+    inputs:
+      terraformVersion: 'latest'
   - task: TerraformTask@5
     displayName: 'Terraform Plan'
     inputs:

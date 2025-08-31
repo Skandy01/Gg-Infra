@@ -1,0 +1,128 @@
+trigger: 
+  - feature01_GG
+
+pool: 'Initial Pool'
+
+variables:
+  workDir: ''
+
+stages:
+- stage: build
+  displayName: "Building Dev Infra"
+  jobs:
+    - job: 
+      displayName: 'Terraform Build'
+      steps:
+      - task: TerraformInstaller@1
+        displayName: 'Terraform Installer'
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTask@5
+        displayName: 'Terraform Init'
+        condition: succeeded()
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+          backendServiceArm: 'redo_ADO'
+          backendAzureRmResourceGroupName: 'RG_SP'
+          backendAzureRmStorageAccountName: 'stgsp'
+          backendAzureRmContainerName: 'contsp'
+          backendAzureRmKey: 'dev02.tfstate'
+
+- stage: test
+  displayName: 'Code Testing'
+  jobs:
+    - job: 
+      displayName: 'Code Testing'
+      steps:
+      - task: TerraformInstaller@1
+        displayName: 'Terraform Installer'
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTask@5
+        displayName: 'Terraform Init'
+        condition: succeeded()
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+          backendServiceArm: 'redo_ADO'
+          backendAzureRmResourceGroupName: 'RG_SP'
+          backendAzureRmStorageAccountName: 'stgsp'
+          backendAzureRmContainerName: 'contsp'
+          backendAzureRmKey: 'dev02.tfstate'
+      - task: TerraformTask@5
+        displayName: 'Terraform Validate'
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+      - task: TerraformTask@5
+        displayName: 'Terraform Fmt'
+        inputs:
+          provider: 'azurerm'
+          command: 'custom'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+          outputTo: 'console'
+          customCommand: 'fmt'
+          environmentServiceNameAzureRM: 'redo_ADO'
+      
+- stage: 
+  displayName: 'Deployment Plan'
+  jobs:
+    - job: 
+      displayName: 'Infra Deployment Plan'
+      steps:
+      - task: TerraformInstaller@1
+        displayName: 'Terraform Installer'
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTask@5
+        displayName: 'Terraform Init'
+        condition: succeeded()
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+          backendServiceArm: 'redo_ADO'
+          backendAzureRmResourceGroupName: 'RG_SP'
+          backendAzureRmStorageAccountName: 'stgsp'
+          backendAzureRmContainerName: 'contsp'
+          backendAzureRmKey: 'dev02.tfstate'
+
+- stage: test
+  displayName: 'Code Testing'
+  jobs:
+    - job: 
+      displayName: 'Code Testing'
+      steps:
+      - task: TerraformInstaller@1
+        displayName: 'Terraform Installer'
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTask@5
+        displayName: 'Terraform Init'
+        condition: succeeded()
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+          backendServiceArm: 'redo_ADO'
+          backendAzureRmResourceGroupName: 'RG_SP'
+          backendAzureRmStorageAccountName: 'stgsp'
+          backendAzureRmContainerName: 'contsp'
+          backendAzureRmKey: 'dev02.tfstate'
+      - task: TerraformTask@5
+        displayName: 'Terraform Plan'
+        condition: succeeded()
+        inputs:
+          provider: 'azurerm'
+          command: 'plan'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+          environmentServiceNameAzureRM: 'redo_ADO'
+      
+
+
+
+  

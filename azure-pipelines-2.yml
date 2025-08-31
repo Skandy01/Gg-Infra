@@ -2,6 +2,9 @@ trigger: none
 
 pool: Initial Pool
 
+variables:
+  workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation/Infra-Dev'
+
 steps:
 - task: TerraformInstaller@1
   displayName: 'Terraform Installer'
@@ -10,7 +13,7 @@ steps:
 - script: |
     terraform init -backend-config=storage_account_name=stgsp -backend-config=container_name=contsp -backend-config=key=dev.tfstate -backend-config=resource_group_name=RG_SP -backend-config=subscription_id='9c521f44-ae8d-4736-9337-a8ab0038c6c7' -backend-config=use_azuread_auth=true -backend-config=oidc_token=$(System.ServiceConnections.redo_ADO.oidcToken)
   displayName: 'Terraform Init'
-  workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+  workingDirectory: '$(workDir)'
   env:
     ARM_SUBSCRIPTION_ID: '9c521f44-ae8d-4736-9337-a8ab0038c6c7'
     ARM_CLIENT_ID: '8f5b4a3d-e43f-4184-a7c2-91db4b88197c'
@@ -21,13 +24,13 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+    workingDirectory: '$(workDir)'
 - task: TerraformTask@5
   displayName: 'Terraform Fmt'
   inputs:
     provider: 'azurerm'
     command: 'custom'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+    workingDirectory: '$(workDir)'
     outputTo: 'console'
     customCommand: 'fmt'
     environmentServiceNameAzureRM: 'redo_ADO'
@@ -36,5 +39,5 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+    workingDirectory: '$(workDir)'
     environmentServiceNameAzureRM: 'redo_ADO'

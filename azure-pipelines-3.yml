@@ -1,0 +1,56 @@
+trigger: 
+  - feature01_GG
+
+pool: Initial Pool
+variables: 
+  workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation/Infra-Dev'
+
+
+jobs:
+- job: 
+  displayName: 'Terraform Installer'
+  steps:
+  - task: TerraformInstaller@1
+    inputs:
+      terraformVersion: 'latest'
+
+- job: 
+  displayName: 'Terraform Init'
+  steps:
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: '$(workDir)'
+      backendServiceArm: 'redo_ADO'
+      backendAzureRmResourceGroupName: 'RG_SP'
+      backendAzureRmStorageAccountName: 'stgsp'
+      backendAzureRmContainerName: 'contsp'
+      backendAzureRmKey: 'Dev01.tfstate'
+  
+- job: 
+  displayName: 'Terraform Validate & Fmt'
+  steps:
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'validate'
+      workingDirectory: '$(workDir)'
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'custom'
+      workingDirectory: '$(workDir)'
+      outputTo: 'console'
+      customCommand: 'fmt'
+      environmentServiceNameAzureRM: 'redo_ADO'
+
+- job: 
+  displayName: 'Terraform Plan'
+  steps:
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      workingDirectory: '$(workDir)'
+      environmentServiceNameAzureRM: 'redo_ADO'

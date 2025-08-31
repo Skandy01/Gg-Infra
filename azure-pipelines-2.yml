@@ -10,17 +10,20 @@ steps:
   displayName: 'Terraform Installer'
   inputs:
     terraformVersion: 'latest'
-- script: |
-    terraform init -backend-config=storage_account_name=stgsp -backend-config=container_name=contsp -backend-config=key=dev.tfstate -backend-config=resource_group_name=RG_SP -backend-config=subscription_id='9c521f44-ae8d-4736-9337-a8ab0038c6c7' -backend-config=use_azuread_auth=true -backend-config=oidc_token=$(System.ServiceConnections.redo_ADO.oidcToken)
-  displayName: 'Terraform Init'
-  workingDirectory: '$(workDir)'
-  env:
-    ARM_SUBSCRIPTION_ID: '9c521f44-ae8d-4736-9337-a8ab0038c6c7'
-    ARM_CLIENT_ID: '8f5b4a3d-e43f-4184-a7c2-91db4b88197c'
-    ARM_TENANT_ID: '036aee4d-04d6-4f88-8c6b-a43b5de3f1b9'
-    ARM_OIDC_TOKEN: $(System.ServiceConnections.redo_ADO.oidcToken)
-- task: TerraformTask@5
+
+- task: TerraformTask@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(workDir)'
+    backendServiceArm: 'redo_ADO'
+    backendAzureRmResourceGroupName: 'RG_SP'
+    backendAzureRmStorageAccountName: 'stgsp'
+    backendAzureRmContainerName: 'contsp'
+    backendAzureRmKey: 'dev1.tfstate'
   displayName: 'Terraform Validate'
+  
+- task: TerraformTask@5  
   inputs:
     provider: 'azurerm'
     command: 'validate'

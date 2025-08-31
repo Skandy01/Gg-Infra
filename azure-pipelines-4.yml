@@ -68,7 +68,7 @@ stages:
           customCommand: 'fmt'
           environmentServiceNameAzureRM: 'redo_ADO'
       
-- stage: 
+- stage: deploy
   displayName: 'Deployment Plan'
   jobs:
     - job: 
@@ -90,39 +90,10 @@ stages:
           backendAzureRmStorageAccountName: 'stgsp'
           backendAzureRmContainerName: 'contsp'
           backendAzureRmKey: 'dev02.tfstate'
-
-- stage: test
-  displayName: 'Code Testing'
-  jobs:
-    - job: 
-      displayName: 'Code Testing'
-      steps:
-      - task: TerraformInstaller@1
-        displayName: 'Terraform Installer'
-        inputs:
-          terraformVersion: 'latest'
-      - task: TerraformTask@5
-        displayName: 'Terraform Init'
-        condition: succeeded()
-        inputs:
-          provider: 'azurerm'
-          command: 'init'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
-          backendServiceArm: 'redo_ADO'
-          backendAzureRmResourceGroupName: 'RG_SP'
-          backendAzureRmStorageAccountName: 'stgsp'
-          backendAzureRmContainerName: 'contsp'
-          backendAzureRmKey: 'dev02.tfstate'
       - task: TerraformTask@5
         displayName: 'Terraform Plan'
-        condition: succeeded()
         inputs:
           provider: 'azurerm'
           command: 'plan'
           workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
           environmentServiceNameAzureRM: 'redo_ADO'
-      
-
-
-
-  

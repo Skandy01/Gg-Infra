@@ -2,6 +2,10 @@ trigger: none
 
 pool: Azure Pipelines
 
+variables:
+  workDir: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+  scName: 'redo_ADO'
+
 steps:
 - task: TerraformInstaller@1
   displayName: 'Terraform Installer'
@@ -12,7 +16,7 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+    workingDirectory: '$(workDir)'
     backendServiceArm: 'redo_ADO'
     backendAzureRmResourceGroupName: 'RG_SP'
     backendAzureRmStorageAccountName: 'stgsp'
@@ -23,22 +27,22 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+    workingDirectory: '$(workDir)'
 - task: TerraformTask@5
   displayName: 'Terraform Fmt'
   inputs:
     provider: 'azurerm'
     command: 'custom'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
+    workingDirectory: '$(workDir)'
     outputTo: 'console'
     customCommand: 'fmt'
-    environmentServiceNameAzureRM: 'redo_ADO'
+    environmentServiceNameAzureRM: '$(scName)'
 - task: TerraformTask@5
   displayName: 'Terraform Plan'
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Infra-Dev'
-    environmentServiceNameAzureRM: 'redo_ADO'
+    workingDirectory: '$(workDir)'
+    environmentServiceNameAzureRM: '$(scName)'
 
 

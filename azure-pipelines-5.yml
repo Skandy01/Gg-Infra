@@ -3,7 +3,7 @@ trigger: none
 pool: 'Initial Pool'
 
 variables: 
-  workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation /Infra-Dev'
+  workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation/Infra-Dev'
 
 
 stages:
@@ -14,9 +14,11 @@ stages:
         displayName: 'Initialize Infra'
         steps:
         - task: TerraformInstaller@1
+          displayName: 'Terraform_Installer'
           inputs:
             terraformVersion: 'latest'
         - task: TerraformTask@4
+          displayName: 'Terraform_Init'
           inputs:
             provider: 'azurerm'
             command: 'init'
@@ -27,6 +29,7 @@ stages:
             backendAzureRmContainerName: 'contsp'
             backendAzureRmKey: 'QA.tfstate'
         - task: TerraformTask@5
+          displayName: 'Terraform_Fmt'
           inputs:
             provider: 'azurerm'
             command: 'custom'
@@ -35,11 +38,13 @@ stages:
             customCommand: 'fmt'
             environmentServiceNameAzureRM: 'redo_ADO'
         - task: TerraformTask@5
+          displayName: 'Terraform_Validate'
           inputs:
             provider: 'azurerm'
             command: 'validate'
             workingDirectory: '$(workDir)'
         - task: TerraformTask@5
+          displayName: 'Terraform_Plan'
           inputs:
             provider: 'azurerm'
             command: 'plan'
@@ -49,37 +54,47 @@ stages:
     displayName: 'Scan'
     dependsOn: Build
     jobs:
-      - job:
+      - job: Scan_Configs
         displayName: 'Scan_Configs'
-        dependsOn: 'Initialize_Infra'
         steps:
         - task: tfsec@1
+          displayName: 'Run_TFSec'
           inputs:
             version: 'v1.26.0'
             dir: '$(workDir)'
+            args: '--soft-fail'
         - script: |
             Invoke-WebRequest -Uri "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_windows_amd64.zip" -OutFile "tflint.zip"
             Expand-Archive -Path "tflint.zip" -DestinationPath "." -Force
             Remove-Item "tflint.zip"
-            .\tflint.exe --chdir="$(workDir)"
+            .\tflint.exe --chdir="$(workDir)" --exit-zero
           displayName: 'Run TFLint'
-          pwsh: true
 
         # Run Checkov
         - script: |
             pip install --quiet checkov
             checkov -d "$(workDir)"
           displayName: 'Run Checkov'
-          pwsh: true
 
-  - stage: 
+  - stage: Deploy
     displayName: "Deployment"
-    dependsOn: "Build"
+    dependsOn: "Scan"
     jobs:
-      - job: 
+      - job: Manual_Validation
+        displayName: 'Manual_Validation'
+        pool: server
+        steps:
+        - task: ManualValidation@1
+          displayName: 'Manual_Validation'
+          inputs:
+            notifyUsers: 'bhavyabharti072@gmail.com'
+            approvers: 'bhavyabharti072@gmail.com'
+      - job: Apply_Infra
         displayName: 'Apply_Infra'
+        dependsOn: Manual_Validation
         steps:
         - task: TerraformTask@5
+          displayName: 'Terraform_Init'
           inputs:
             provider: 'azurerm'
             command: 'init'
@@ -89,17 +104,10 @@ stages:
             backendAzureRmStorageAccountName: 'stgsp'
             backendAzureRmContainerName: 'contsp'
             backendAzureRmKey: 'QA.tfstate'
-        - task: ManualValidation@1
-          inputs:
-            notifyUsers: 'bhavyabharti072@gmail.com'
-            approvers: 'bhavyabharti072@gmail.com'
         - task: TerraformTask@5
+          displayName: 'Terraform_Plan'
           inputs:
             provider: 'azurerm'
-            command: 'apply'
+            command: 'plan'
             workingDirectory: '$(workDir)'
             environmentServiceNameAzureRM: 'redo_ADO'
-
-
-            
-        

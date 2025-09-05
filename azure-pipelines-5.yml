@@ -5,6 +5,11 @@ pool: 'Initial Pool'
 variables: 
   workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation/Infra-Dev'
 
+parameters:
+  - name: runApply
+    displayName: "Do you want to run Terraform Apply?"
+    type: boolean
+    default: false
 
 stages:
   - stage: Build
@@ -75,6 +80,7 @@ stages:
             pip install --quiet checkov
             checkov -d "$(workDir)"
           displayName: 'Run Checkov'
+          condition: succeededOrFailed()
 
   - stage: Deploy
     displayName: "Deployment"
@@ -105,9 +111,8 @@ stages:
             backendAzureRmContainerName: 'contsp'
             backendAzureRmKey: 'QA.tfstate'
         - task: TerraformTask@5
-          displayName: 'Terraform_Plan'
           inputs:
             provider: 'azurerm'
-            command: 'plan'
+            command: 'apply'
             workingDirectory: '$(workDir)'
             environmentServiceNameAzureRM: 'redo_ADO'

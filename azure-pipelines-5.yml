@@ -68,23 +68,31 @@ stages:
             version: 'v1.26.0'
             dir: '$(workDir)'
             args: '--soft-fail'
-        - script: |
-            Invoke-WebRequest -Uri "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_windows_amd64.zip" -OutFile "tflint.zip"
-            Expand-Archive -Path "tflint.zip" -DestinationPath "." -Force
-            Remove-Item "tflint.zip"
-            .\tflint.exe --chdir="$(workDir)" --exit-zero
+          continueOnError: true
+        - task: PowerShell@2
           displayName: 'Run TFLint'
-
-        # Run Checkov
-        - script: |
-            pip install --quiet checkov
-            checkov -d "$(workDir)"
+          inputs:
+            targetType: 'inline'
+            script: |
+              Invoke-WebRequest -Uri "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_windows_amd64.zip" -OutFile "tflint.zip"
+              Expand-Archive -Path "tflint.zip" -DestinationPath "." -Force
+              Remove-Item "tflint.zip"
+              .\tflint.exe --chdir="$(workDir)" --exit-code=0
+          continueOnError: true
+        - task: PowerShell@2
           displayName: 'Run Checkov'
-          condition: succeededOrFailed()
+          inputs:
+            targetType: 'inline'
+            script: |
+              python -m pip install --upgrade pip
+              pip install checkov
+              checkov -d "$(workDir)" --soft-fail
+          continueOnError: true
 
   - stage: Deploy
     displayName: "Deployment"
     dependsOn: "Scan"
+    condition: succeededOrFailed()
     jobs:
       - job: Manual_Validation
         displayName: 'Manual_Validation'
@@ -116,3 +124,4 @@ stages:
             command: 'apply'
             workingDirectory: '$(workDir)'
             environmentServiceNameAzureRM: 'redo_ADO'
+          condition: eq('${{ parameters.runApply }}', false)

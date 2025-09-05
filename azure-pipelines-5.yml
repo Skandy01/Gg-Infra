@@ -3,7 +3,7 @@ trigger: none
 pool: 'Initial Pool'
 
 variables: 
-  workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation /Infra-Dev'
+  workDir: '$(System.DefaultWorkingDirectory)/VM_Three-Tier_Automation/Infra-Dev'
 
 
 stages:
@@ -49,9 +49,8 @@ stages:
     displayName: 'Scan'
     dependsOn: Build
     jobs:
-      - job:
+      - job: Scan_Configs
         displayName: 'Scan_Configs'
-        dependsOn: 'Initialize_Infra'
         steps:
         - task: tfsec@1
           inputs:
@@ -63,21 +62,28 @@ stages:
             Remove-Item "tflint.zip"
             .\tflint.exe --chdir="$(workDir)"
           displayName: 'Run TFLint'
-          pwsh: true
 
         # Run Checkov
         - script: |
             pip install --quiet checkov
             checkov -d "$(workDir)"
           displayName: 'Run Checkov'
-          pwsh: true
 
-  - stage: 
+  - stage: Deploy
     displayName: "Deployment"
-    dependsOn: "Build"
+    dependsOn: "Scan"
     jobs:
-      - job: 
+      - job: Manual_Validation
+        displayName: 'Manual_Validation'
+        pool: server
+        steps:
+        - task: ManualValidation@1
+          inputs:
+            notifyUsers: 'bhavyabharti072@gmail.com'
+            approvers: 'bhavyabharti072@gmail.com'
+      - job: Apply_Infra
         displayName: 'Apply_Infra'
+        dependsOn: Manual_Validation
         steps:
         - task: TerraformTask@5
           inputs:
@@ -89,17 +95,9 @@ stages:
             backendAzureRmStorageAccountName: 'stgsp'
             backendAzureRmContainerName: 'contsp'
             backendAzureRmKey: 'QA.tfstate'
-        - task: ManualValidation@1
-          inputs:
-            notifyUsers: 'bhavyabharti072@gmail.com'
-            approvers: 'bhavyabharti072@gmail.com'
         - task: TerraformTask@5
           inputs:
             provider: 'azurerm'
             command: 'apply'
             workingDirectory: '$(workDir)'
             environmentServiceNameAzureRM: 'redo_ADO'
-
-
-            
-        

@@ -101,8 +101,8 @@ stages:
         - task: ManualValidation@1
           displayName: 'Manual_Validation'
           inputs:
-            notifyUsers: 'bhavyabharti072@gmail.com'
-            approvers: 'bhavyabharti072@gmail.com'
+            notifyUsers: 'devopscollab101@gmail.com'
+            approvers: 'devopscollab101@gmail.com'
       - job: Apply_Infra
         displayName: 'Apply_Infra'
         dependsOn: Manual_Validation

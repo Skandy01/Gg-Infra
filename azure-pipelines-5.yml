@@ -77,8 +77,16 @@ stages:
               Invoke-WebRequest -Uri "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_windows_amd64.zip" -OutFile "tflint.zip"
               Expand-Archive -Path "tflint.zip" -DestinationPath "." -Force
               Remove-Item "tflint.zip"
-              .\tflint.exe --chdir="$(workDir)" --exit-code=0
-          continueOnError: true
+              try {
+                  .\tflint.exe --chdir="$(workDir)"
+              } catch {
+                  Write-Host "TFLint found issues, but continuing..."
+              }
+            continueOnError: true
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: '3.x'
+            addToPath: true
         - task: PowerShell@2
           displayName: 'Run Checkov'
           inputs:
@@ -107,6 +115,10 @@ stages:
         displayName: 'Apply_Infra'
         dependsOn: Manual_Validation
         steps:
+        - task: TerraformInstaller@1
+          displayName: 'Terraform_Installer'
+          inputs:
+            terraformVersion: 'latest'
         - task: TerraformTask@5
           displayName: 'Terraform_Init'
           inputs:
@@ -119,6 +131,7 @@ stages:
             backendAzureRmContainerName: 'contsp'
             backendAzureRmKey: 'QA.tfstate'
         - task: TerraformTask@5
+          displayName: 'Terraform_Apply'
           inputs:
             provider: 'azurerm'
             command: 'apply'

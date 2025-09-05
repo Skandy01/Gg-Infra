@@ -73,7 +73,7 @@ stages:
         # Run Checkov
         - script: |
             pip install --quiet checkov
-            checkov -d "$(workDir)" --soft-fail
+            checkov -d "$(workDir)"
           displayName: 'Run Checkov'
 
   - stage: Deploy
